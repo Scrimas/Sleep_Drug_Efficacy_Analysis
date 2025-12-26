@@ -1,5 +1,3 @@
-# Sleep_Drug_Efficacy_Analysis
-
 # Comparative Analysis of the Effectiveness of Sleeping Pills
 
 This repository contains the statistical analysis of a clinical study comparing the effect of two molecules (**Hyoscyamine** and **Hyoscine**) on sleep duration in 10 patients.
