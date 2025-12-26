@@ -35,4 +35,4 @@ The analysis highlights a statistically significant difference. Hyoscine causes 
 
 ---
 
-*Author: Ismaël PHILIPPE - Biology/Data Science Student*
+*Author: Ismaël PHILIPPE - Biology Student*
