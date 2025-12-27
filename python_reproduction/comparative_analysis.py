@@ -1,36 +1,87 @@
+"""
+Sleep Study Analysis Pipeline
+Automates the statistical comparison of soporific drugs using paired samples.
+Handles normality assumptions dynamically to select between T-test and Wilcoxon.
+"""
+
+from pathlib import Path
 import pandas as pd
 from scipy import stats
-import os
+from typing import Tuple, Dict
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(current_dir, '..', 'data', 'dataset_somniferes.csv')
+# Constants
+ALPHA = 0.05
 
-df = pd.read_csv(file_path)
+def load_data(relative_path: str) -> pd.DataFrame:
+    """Loads data relative to the current script location using pathlib."""
+    base_path = Path(__file__).resolve().parent
+    # Using pathlib / operator is much more readable than os.path.join
+    data_path = base_path / relative_path
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Dataset not found at: {data_path}")
+        
+    return pd.read_csv(data_path)
 
-print("--- DATA PREVIEW ---")
-print(df)
-print("-" * 30)
+def perform_paired_analysis(df: pd.DataFrame, col1: str, col2: str) -> Dict:
+    """
+    Evaluates assumptions and runs the appropriate statistical test.
+    Returns a dictionary with test metadata and results.
+    """
+    # 1. Compute differences for paired normality check
+    differences = df[col1] - df[col2]
+    
+    # 2. Shapiro-Wilk Test
+    stat_shapiro, p_shapiro = stats.shapiro(differences)
+    is_normal = p_shapiro > ALPHA
+    
+    # 3. Dynamic Test Selection
+    if is_normal:
+        test_name = "Paired Student's t-test"
+        stat, p_val = stats.ttest_rel(df[col1], df[col2])
+        assumption_note = f"Normality accepted (Shapiro p={p_shapiro:.4f})"
+    else:
+        test_name = "Wilcoxon Signed-Rank Test"
+        stat, p_val = stats.wilcoxon(df[col1], df[col2])
+        assumption_note = f"Normality rejected (Shapiro p={p_shapiro:.4f})"
+        
+    return {
+        "test_used": test_name,
+        "statistic": stat,
+        "p_value": p_val,
+        "assumption_note": assumption_note,
+        "significant": p_val < ALPHA
+    }
 
-df['difference'] = df['hyoscine'] - df['hyosciamine']
+def print_report(results: Dict):
+    """Formats the analysis results for the console."""
+    print("-" * 40)
+    print(f"ANALYSIS REPORT: {results['test_used']}")
+    print("-" * 40)
+    print(f"Assumption Check: {results['assumption_note']}")
+    print(f"Test Statistic:   {results['statistic']:.4f}")
+    print(f"P-value:          {results['p_value']:.4f}")
+    print("-" * 40)
+    
+    if results['significant']:
+        print(f"CONCLUSION: Significant difference found (p < {ALPHA}).")
+        print(">> The drugs have different effects on sleep duration.")
+    else:
+        print(f"CONCLUSION: No significant difference found (p >= {ALPHA}).")
 
-print("\n--- SHAPIRO-WILK TEST (NORMALITY) ---")
-shapiro_stat, shapiro_p = stats.shapiro(df['difference'])
-
-print(f"Statistic: {shapiro_stat:.5f}")
-print(f"P-value:   {shapiro_p:.5f}")
-
-if shapiro_p < 0.05:
-    print("Result: Distribution is NOT normal (p < 0.05).")
-else:
-    print("Result: Distribution is normal.")
-
-print("\n--- WILCOXON SIGNED-RANK TEST ---")
-wilcox_stat, wilcox_p = stats.wilcoxon(df['hyosciamine'], df['hyoscine'])
-
-print(f"Statistic: {wilcox_stat}")
-print(f"P-value:   {wilcox_p:.5f}")
-
-if wilcox_p < 0.05:
-    print("CONCLUSION: Significant difference detected between the two drugs.")
-else:
-    print("CONCLUSION: No significant difference detected.")
+# --- Main Execution Entry Point ---
+if __name__ == "__main__":
+    try:
+        # Load
+        df_sleep = load_data('../data/dataset_somniferes.csv')
+        
+        # Analyze
+        results = perform_paired_analysis(df_sleep, 'hyosciamine', 'hyoscine')
+        
+        # Report
+        print_report(results)
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
