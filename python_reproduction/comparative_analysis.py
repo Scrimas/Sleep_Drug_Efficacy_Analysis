@@ -15,7 +15,6 @@ ALPHA = 0.05
 def load_data(relative_path: str) -> pd.DataFrame:
     """Loads data relative to the current script location using pathlib."""
     base_path = Path(__file__).resolve().parent
-    # Using pathlib / operator is much more readable than os.path.join
     data_path = base_path / relative_path
     
     if not data_path.exists():
