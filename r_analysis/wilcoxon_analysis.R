@@ -1,4 +1,4 @@
-# Analysis of Soporific Drugs (Exercise 1)
+# Analysis of Soporific Drugs
 # Context: Bio-statistics L3 - Paired data study (n=10)
 # Goal: Compare sleep duration extension between Hyoscyamine and Hyoscine
 
