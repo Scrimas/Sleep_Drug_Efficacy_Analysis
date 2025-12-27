@@ -20,16 +20,18 @@ The study focuses on **paired data** (each patient tested both drugs).
 
 ## Main Results
 
-* **Shapiro-Wilk test**: $p = 0.033$ (non-normal distribution).
-* **Wilcoxon test**: $p = 0.009$ ($p < 0.05$).
+| Test | P-value | Interpretation |
+| :--- | :--- | :--- |
+| **Shapiro-Wilk** | $0.033$ | Normality Rejected |
+| **Wilcoxon** | $0.009$ | **Significant Difference** |
 
 **Biological conclusion:**
 The analysis highlights a statistically significant difference. Hyoscine causes a greater increase in sleep time than hyoscyamine.
 
 ## Tools Used
 
-* **R**: `shapiro.test`, `wilcox.test`
-* **Python**: `pandas` (data management), `scipy.stats` (statistical tests)
+* **R**: `shapiro.test`, `wilcox.test` (Academic standard)
+* **Python**: `pandas`, `scipy.stats`, `pathlib` (Automation & Engineering)
 
 ---
 
