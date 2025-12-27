@@ -9,7 +9,7 @@ import pandas as pd
 from scipy import stats
 from typing import Tuple, Dict
 
-# Constants
+# --- Configuration ---
 ALPHA = 0.05
 
 def load_data(relative_path: str) -> pd.DataFrame:
